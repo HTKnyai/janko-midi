@@ -420,4 +420,37 @@ function createMiniKeyboard2Row(noteNumbers) {
   return container;
 }
 
+// キーボード配列（左上が (x=0, y=0)）
+const keyMap = [
+  'qwertyuiop',
+  'asdfghjkl;',
+  'zxcvbnm,./',
+];
+
+document.addEventListener('keydown', (e) => {
+  if (e.repeat) return; // 長押し無視
+
+  for (let y = 0; y < keyMap.length; y++) {
+    const row = keyMap[y];
+    const x = row.indexOf(e.key.toLowerCase());
+    if (x !== -1) {
+      const note = midiNoteFromPosition(x, y);
+      pressNote(note);
+    }
+  }
+});
+
+document.addEventListener('keyup', (e) => {
+  for (let y = 0; y < keyMap.length; y++) {
+    const row = keyMap[y];
+    const x = row.indexOf(e.key.toLowerCase());
+    if (x !== -1) {
+      const note = midiNoteFromPosition(x, y);
+      releaseNote(note);
+    }
+  }
+});
+
 renderChordChart();
+
+
