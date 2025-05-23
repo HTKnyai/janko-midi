@@ -11,25 +11,27 @@ body {
 
 .key {
   position: absolute;
+  display: flex; /* ← 追加 */
+  align-items: center; /* 垂直中央揃え */
+  justify-content: center; /* 水平中央揃え */
   width: 60px;
   height: 40px;
   background: white;
   border: 1px solid #999;
   border-radius: 6px;
   box-shadow: 1px 1px 3px rgba(0,0,0,0.2);
-  text-align: center;
-  line-height: 40px;
   user-select: none;
+  font-size: 0.8rem;
+}
+
+.key .label {
+  pointer-events: none;
+  font-size: inherit; /* ← JSで設定するフォントサイズと一致させるならここを */
 }
 
 .key.black {
   background: black;
   color: white;
-}
-
-.key .label {
-  font-size: 0.8rem;
-  pointer-events: none;
 }
 
 .key.pressed {

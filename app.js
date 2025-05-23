@@ -1,8 +1,8 @@
 // ===== ヤンコ鍵盤描画 =====
 const NUM_ROWS = 5;
 const NUM_KEYS_PER_ROW = 16;
-const KEY_WIDTH = 70;
-const KEY_HEIGHT = 50;
+let KEY_WIDTH = 70;
+let KEY_HEIGHT = 50;
 
 const keyboardEl = document.getElementById('keyboard');
 const pressedNotes = new Set();
@@ -34,6 +34,8 @@ function createKey(x, y) {
   if (isBlackKey(note)) key.classList.add('black');
 
   // Janko配列で右上にずらす
+  key.style.width = `${KEY_WIDTH}px`;
+  key.style.height = `${KEY_HEIGHT}px`;
   key.style.left = `${x * KEY_WIDTH + y * (KEY_WIDTH / 2)}px`;
   key.style.top = `${y * KEY_HEIGHT}px`;
   key.dataset.note = note;
@@ -41,6 +43,7 @@ function createKey(x, y) {
   const label = document.createElement('div');
   label.className = 'label';
   label.innerText = noteLabel(note);
+  label.style.fontSize = `${Math.floor(KEY_HEIGHT * 0.4)}px`;
   key.appendChild(label);
 
   key.addEventListener('mousedown', () => pressNote(note));
@@ -58,8 +61,10 @@ function createKey(x, y) {
 }
 
 function buildKeyboard() {
+  keyboardEl.innerHTML = ''; // 古いキーをすべて削除
   keyboardEl.style.position = 'relative';
-  keyboardEl.style.height = `${NUM_ROWS * KEY_HEIGHT}px`;
+  keyboardEl.style.height = `${NUM_ROWS * KEY_HEIGHT}px`; // 動的に再設定
+
   for (let y = 0; y < NUM_ROWS; y++) {
     for (let x = 0; x < NUM_KEYS_PER_ROW; x++) {
       createKey(x, y);
@@ -281,3 +286,12 @@ function addChordWithLabelsToStave(midiNotes) {
 
 setupVexFlow();
 buildKeyboard();
+document.getElementById('keySizeSlider').addEventListener('input', (e) => {
+  const newSize = parseInt(e.target.value);
+  KEY_WIDTH = newSize;
+  KEY_HEIGHT = Math.floor(newSize * 0.714); // 比率維持（例: 70x50）
+
+  // 再構築
+  keyboardEl.innerHTML = '';  // 一度全部削除
+  buildKeyboard();
+});
