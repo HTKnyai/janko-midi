@@ -75,15 +75,20 @@ function buildKeyboard() {
 
 // ===== コード判定 =====
 const chordTypes = [
+  { name: '7', intervals: [0, 4, 7, 10] },
+  { name: 'maj7', intervals: [0, 4, 7, 11] },
+  { name: 'min7', intervals: [0, 3, 7, 10] },
   { name: 'maj', intervals: [0, 4, 7] },
   { name: 'min', intervals: [0, 3, 7] },
   { name: 'dim', intervals: [0, 3, 6] },
   { name: 'aug', intervals: [0, 4, 8] },
   { name: 'sus2', intervals: [0, 2, 7] },
   { name: 'sus4', intervals: [0, 5, 7] },
-  { name: '7', intervals: [0, 4, 7, 10] },
-  { name: 'maj7', intervals: [0, 4, 7, 11] },
-  { name: 'min7', intervals: [0, 3, 7, 10] },
+];
+
+const displayChordGroups = [
+  ['maj', 'min', '7', 'maj7', 'min7'],
+  ['sus2', 'sus4', 'dim', 'aug']
 ];
 
 function noteName(note) {
@@ -94,10 +99,16 @@ function noteName(note) {
 function detectChord(noteSet) {
   const notes = Array.from(noteSet).sort((a, b) => a - b);
   if (notes.length < 2) return null;
+
   for (let root of notes) {
     const intervals = notes.map(n => (n - root + 12) % 12);
+
     for (let chord of chordTypes) {
-      if (chord.intervals.every(i => intervals.includes(i))) {
+      const chordIntervals = chord.intervals;
+      const match = chordIntervals.every(i => intervals.includes(i)) &&
+                    intervals.length === chordIntervals.length;
+
+      if (match) {
         return `${noteName(root)}${chord.name}`;
       }
     }
@@ -315,3 +326,98 @@ window.addEventListener('resize', () => {
     setupVexFlow(); // ← 一度だけ再描画
   }, 300);
 });
+
+// ===== コード図表示 =====
+const chordPresets = {
+  'maj':  [0, 4, 7],
+  'min':  [0, 3, 7],
+  'dim':  [0, 3, 6],
+  'aug':  [0, 4, 8],
+  'sus2': [0, 2, 7],
+  'sus4': [0, 5, 7],
+  '7':    [0, 4, 7, 10],
+  'maj7': [0, 4, 7, 11],
+  'min7': [0, 3, 7, 10],
+};
+
+// 🔧 HTML要素取得を関数の前に移動
+const chordChartEl = document.getElementById('chord-chart');
+
+const displayNames = {
+  'maj': 'Major',
+  'min': 'Minor',
+  'dim': 'Diminished',
+  'aug': 'Augmented',
+  'sus2': 'Sus2',
+  'sus4': 'Sus4',
+  '7': '7th',
+  'maj7': 'Maj7',
+  'min7': 'Min7',
+};
+
+function renderChordChart() {
+  chordChartEl.innerHTML = '';
+  for (const group of displayChordGroups) {
+    const row = document.createElement('div');
+    row.className = 'chord-chart-row';
+
+    for (const name of group) {
+      const intervals = chordPresets[name];
+      const wrapper = document.createElement('div');
+      wrapper.className = 'chord-wrapper';
+
+      const title = document.createElement('div');
+      title.className = 'chord-title';
+      title.textContent = displayNames[name] || name;
+      wrapper.appendChild(title);
+
+      const root = 60; // C4
+      const baseNotes = intervals.map(i => root + i);
+      wrapper.appendChild(createMiniKeyboard2Row(baseNotes));
+
+      row.appendChild(wrapper);
+    }
+
+    chordChartEl.appendChild(row);
+  }
+}
+
+function createMiniKeyboard2Row(noteNumbers) {
+  const container = document.createElement('div');
+  container.className = 'mini-keyboard-janko';
+
+  const rows = 2;
+  const cols = 6;
+  const ORIGIN_NOTE = 60;
+  const rootNote = noteNumbers[0]; // ルート音
+
+  for (let y = rows - 1; y >= 0; y--) {
+    const rowEl = document.createElement('div');
+    rowEl.className = 'mini-keyboard-row';
+
+    if (y === 1) {
+      rowEl.classList.add('offset');
+    }
+
+    for (let x = 0; x < cols; x++) {
+      const note = ORIGIN_NOTE + x * 2 + y;
+      const key = document.createElement('div');
+      key.className = 'mini-key';
+
+      if (noteNumbers.includes(note)) {
+        key.classList.add('active');
+        if (note === rootNote) {
+          key.classList.add('root');
+        }
+      }
+
+      rowEl.appendChild(key);
+    }
+
+    container.appendChild(rowEl);
+  }
+
+  return container;
+}
+
+renderChordChart();

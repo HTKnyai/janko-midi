@@ -48,3 +48,84 @@ body {
   overflow-x: auto;
 }
 
+#chord-chart {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.chord-chart-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.chord-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 90px;
+}
+
+.chord-title {
+  font-weight: bold;
+  margin-bottom: 0.4rem;
+}
+
+.mini-keyboard {
+  display: flex;
+  justify-content: center; /* 横中央に整列 */
+  height: 20px;
+  margin-bottom: 4px;
+  width: fit-content; /* 鍵数に合わせる */
+}
+
+.mini-keyboard-3row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 0.5rem;
+}
+
+.mini-keyboard-janko {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 0.5rem;
+}
+
+.mini-keyboard-row {
+  display: flex;
+  justify-content: center;
+}
+
+.mini-keyboard-row.offset {
+  margin-left: 18px; /* 半キー分のシフト */
+}
+
+.mini-key.active {
+  background: #3399ff;
+}
+
+.mini-key {
+  width: 16px;
+  height: 12px;
+  margin: 1px;
+  background: #eee;
+  border: 1px solid #aaa;
+  box-sizing: border-box;
+  display: inline-block;
+}
+
+.mini-key.black {
+  background: #333;
+}
+
+.mini-key.active {
+  background: #3399ff;
+}
+
+.mini-key.active.root {
+  background-color: #3721df !important;
+}
