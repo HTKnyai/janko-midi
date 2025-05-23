@@ -5,7 +5,7 @@ let KEY_WIDTH = 70;
 let KEY_HEIGHT = 50;
 let staveWidth = Math.floor(window.innerWidth * 0.7); // 最初に定義
 
-let keyboardOriginNote = 60; // A0 = MIDI 21
+let keyboardOriginNote = 58; // A0 = MIDI 21
 
 const keyboardEl = document.getElementById('keyboard');
 const pressedNotes = new Set();
@@ -434,7 +434,7 @@ const keyMap = [
 
 // スライド位置（初期: 0）
 let keyboardOffsetX = 0;
-let keyboardOffsetY = 0;
+let keyboardOffsetY = 1;
 
 const offsetDisplay = document.getElementById('offset-display');
 
