@@ -5,6 +5,13 @@ let KEY_WIDTH = 70;
 let KEY_HEIGHT = 50;
 let staveWidth = Math.floor(window.innerWidth * 0.7); // 最初に定義
 
+let keyboardOriginNote = 21; // A0 = MIDI 21
+
+document.getElementById('keyboard-range').addEventListener('input', (e) => {
+  keyboardOriginNote = parseInt(e.target.value);
+  buildKeyboard();
+});
+
 const keyboardEl = document.getElementById('keyboard');
 const pressedNotes = new Set();
 let startTime = null;
@@ -25,7 +32,7 @@ const ORIGIN_Y = 1;
 function midiNoteFromPosition(x, y) {
   const dx = x - ORIGIN_X;
   const dy = y - ORIGIN_Y;
-  return ORIGIN_NOTE + dx * 2 + dy;
+  return keyboardOriginNote + x * 2 + y;
 }
 
 function createKey(x, y) {
