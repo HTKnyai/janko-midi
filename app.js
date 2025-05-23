@@ -83,6 +83,11 @@ function buildKeyboard() {
 const rangeSlider = document.getElementById('keyboard-range');
 
 function updateKeyboardFromSlider() {
+  // 鳴っている音を全て止める
+  pressedNotes.forEach(note => stopNote(note));
+  pressedNotes.clear();
+
+  // 音域変更と再描画
   keyboardOriginNote = parseInt(rangeSlider.value);
   buildKeyboard();
 }
@@ -95,7 +100,7 @@ document.getElementById('range-left').addEventListener('click', () => {
   if (keyboardOriginNote > 21) {
     keyboardOriginNote--;
     rangeSlider.value = keyboardOriginNote;
-    buildKeyboard();
+    updateKeyboardFromSlider(); // ← buildKeyboard() から変更！
   }
 });
 
@@ -104,7 +109,7 @@ document.getElementById('range-right').addEventListener('click', () => {
   if (keyboardOriginNote < 108) {
     keyboardOriginNote++;
     rangeSlider.value = keyboardOriginNote;
-    buildKeyboard();
+    updateKeyboardFromSlider(); // ← buildKeyboard() から変更！
   }
 });
 
