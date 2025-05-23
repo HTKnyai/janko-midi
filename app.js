@@ -219,15 +219,20 @@ let staveNotes = [];
 function setupVexFlow() {
   staveWidth = Math.floor(window.innerWidth * 0.7);
 
-  renderer = new Vex.Flow.Renderer(document.getElementById("notation"), Vex.Flow.Renderer.Backends.SVG);
+  // 🧼 既存の子要素を削除
+  const notationEl = document.getElementById("notation");
+  notationEl.innerHTML = "";
+
+  renderer = new Vex.Flow.Renderer(notationEl, Vex.Flow.Renderer.Backends.SVG);
   renderer.resize(staveWidth, 150);
   context = renderer.getContext();
 
-  stave = new Vex.Flow.Stave(10, 40, staveWidth - 40); // ← 左右に余白をとる
+  stave = new Vex.Flow.Stave(10, 40, staveWidth - 40);
   stave.addClef("treble").setContext(context).draw();
 
   staveNotes = [];
 }
+
 const MAX_VISIBLE = 10; // 一度に表示する最大ブロック数（1ブロック = 3つのNote）
 
 function addChordWithLabelsToStave(midiNotes) {
@@ -300,4 +305,13 @@ document.getElementById('keySizeSlider').addEventListener('input', (e) => {
 
 window.addEventListener('resize', () => {
   setupVexFlow(); // レンダリングをリセット
+});
+
+let resizeTimer = null;
+
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    setupVexFlow(); // ← 一度だけ再描画
+  }, 300);
 });

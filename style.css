@@ -46,7 +46,5 @@ body {
   padding: 1rem;
   border-radius: 8px;
   overflow-x: auto;
-  display: flex;
-  justify-content: center;
 }
 
