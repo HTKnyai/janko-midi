@@ -31,3 +31,15 @@ body {
   font-size: 0.8rem;
   pointer-events: none;
 }
+
+.key.pressed {
+  background-color: #3399ff !important;
+  color: white;
+}
+
+#notation {
+  margin-top: 2rem;
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+}

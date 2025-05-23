@@ -1,8 +1,8 @@
 // ===== ヤンコ鍵盤描画 =====
-const NUM_ROWS = 4;
-const NUM_KEYS_PER_ROW = 10;
-const KEY_WIDTH = 60;
-const KEY_HEIGHT = 40;
+const NUM_ROWS = 5;
+const NUM_KEYS_PER_ROW = 20;
+const KEY_WIDTH = 70;
+const KEY_HEIGHT = 50;
 
 const keyboardEl = document.getElementById('keyboard');
 const pressedNotes = new Set();
@@ -129,18 +129,21 @@ function updateLogDisplay() {
 function pressNote(note) {
   if (!pressedNotes.has(note)) {
     pressedNotes.add(note);
-    recordNoteOn(note);
+    const els = document.querySelectorAll(`[data-note='${note}']`);
+    els.forEach(el => el.classList.add('pressed'));
+    playNote(note);
     updateChordDisplay(pressedNotes);
-    playNote(note); // ← 音を鳴らす
+    addNoteToStave(note); // 🎼 五線譜に追加
   }
 }
 
 function releaseNote(note) {
   if (pressedNotes.has(note)) {
     pressedNotes.delete(note);
-    recordNoteOff(note);
+    const els = document.querySelectorAll(`[data-note='${note}']`);
+    els.forEach(el => el.classList.remove('pressed'));
+    stopNote(note);
     updateChordDisplay(pressedNotes);
-    stopNote(note); // ← 音を止める
   }
 }
 
@@ -162,20 +165,28 @@ function noteToFreq(note) {
   return 440 * Math.pow(2, (note - 69) / 12); // A4 = MIDI 69 = 440Hz
 }
 
-let audioContext = new (window.AudioContext || window.webkitAudioContext)();
+let audioContext = null;
 let activeOscillators = {};
 
+function getAudioContext() {
+  if (!audioContext) {
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  return audioContext;
+}
+
 function playNote(note) {
+  const context = getAudioContext();
   if (activeOscillators[note]) return;
 
-  const osc = audioContext.createOscillator();
-  const gain = audioContext.createGain();
+  const osc = context.createOscillator();
+  const gain = context.createGain();
   osc.frequency.value = noteToFreq(note);
-  osc.type = 'sine'; // 'square' や 'triangle' も試せます
+  osc.type = 'sine';
 
   osc.connect(gain);
-  gain.connect(audioContext.destination);
-  gain.gain.setValueAtTime(0.2, audioContext.currentTime);
+  gain.connect(context.destination);
+  gain.gain.setValueAtTime(0.2, context.currentTime);
 
   osc.start();
   activeOscillators[note] = { osc, gain };
@@ -189,5 +200,50 @@ function stopNote(note) {
     delete activeOscillators[note];
   }
 }
+
+// ===== 五線譜描画 =====
+
+
+let renderer = null;
+let context = null;
+let stave = null;
+let staveNotes = [];
+
+function setupVexFlow() {
+  renderer = new Vex.Flow.Renderer(document.getElementById("notation"), Vex.Flow.Renderer.Backends.SVG);
+  renderer.resize(700, 150);
+  context = renderer.getContext();
+
+  stave = new Vex.Flow.Stave(10, 40, 680);
+  stave.addClef("treble").setContext(context).draw();
+
+  staveNotes = []; // 表示音符の初期化
+}
+
+function addNoteToStave(midiNote) {
+  const pitchNames = ['c', 'c#', 'd', 'd#', 'e', 'f', 'f#', 'g', 'g#', 'a', 'a#', 'b'];
+  const name = pitchNames[midiNote % 12];
+  const octave = Math.floor(midiNote / 12) - 1;
+  const key = name.replace('#', '') + "/" + octave;
+
+  const note = new Vex.Flow.StaveNote({
+    keys: [key],
+    duration: "q"
+  });
+
+  if (name.includes("#")) {
+    note.addModifier(new Vex.Flow.Accidental("#"), 0); // ✅ 正しい引数順
+  }
+
+  staveNotes.push(note);
+
+  context.clear();
+  stave.setContext(context).draw();
+  Vex.Flow.Formatter.FormatAndDraw(context, stave, staveNotes.slice(-8)); // 最大8音表示
+}
+
+// 呼び出し
+setupVexFlow();
+
 
 buildKeyboard();

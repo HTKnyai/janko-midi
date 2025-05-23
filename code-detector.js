@@ -6,6 +6,8 @@ const chordTypes = [
   { name: 'aug', intervals: [0, 4, 8] },
   { name: 'sus2', intervals: [0, 2, 7] },
   { name: 'sus4', intervals: [0, 5, 7] },
+  { name: 'add9', intervals: [0, 2, 4, 7] },
+  { name: '6', intervals: [0, 4, 7, 9] },
   { name: '7', intervals: [0, 4, 7, 10] },
   { name: 'maj7', intervals: [0, 4, 7, 11] },
   { name: 'min7', intervals: [0, 3, 7, 10] },
