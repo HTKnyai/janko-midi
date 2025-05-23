@@ -129,3 +129,15 @@ body {
 .mini-key.active.root {
   background-color: #3721df !important;
 }
+
+#keyboard-slide-control {
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+#keyboard-slide-control button {
+  padding: 4px 8px;
+  font-size: 1.2rem;
+}

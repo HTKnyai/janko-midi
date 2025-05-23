@@ -428,13 +428,12 @@ const keyMap = [
 ];
 
 document.addEventListener('keydown', (e) => {
-  if (e.repeat) return; // 長押し無視
-
+  if (e.repeat) return;
   for (let y = 0; y < keyMap.length; y++) {
     const row = keyMap[y];
     const x = row.indexOf(e.key.toLowerCase());
     if (x !== -1) {
-      const note = midiNoteFromPosition(x, y);
+      const note = midiNoteFromPosition(x + keyboardOffsetX, y);
       pressNote(note);
     }
   }
@@ -445,10 +444,23 @@ document.addEventListener('keyup', (e) => {
     const row = keyMap[y];
     const x = row.indexOf(e.key.toLowerCase());
     if (x !== -1) {
-      const note = midiNoteFromPosition(x, y);
+      const note = midiNoteFromPosition(x + keyboardOffsetX, y);
       releaseNote(note);
     }
   }
+});
+
+// スライド位置（初期: 0）
+let keyboardOffsetX = 0; // ← スライド位置（初期: 0）
+
+const offsetDisplay = document.getElementById('offset-display');
+document.getElementById('slide-left').addEventListener('click', () => {
+  keyboardOffsetX = Math.max(keyboardOffsetX - 1, -10);
+  offsetDisplay.textContent = `X: ${keyboardOffsetX}`;
+});
+document.getElementById('slide-right').addEventListener('click', () => {
+  keyboardOffsetX = Math.min(keyboardOffsetX + 1, 10);
+  offsetDisplay.textContent = `X: ${keyboardOffsetX}`;
 });
 
 renderChordChart();
