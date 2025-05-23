@@ -3,6 +3,7 @@ const NUM_ROWS = 5;
 const NUM_KEYS_PER_ROW = 16;
 let KEY_WIDTH = 70;
 let KEY_HEIGHT = 50;
+let staveWidth = Math.floor(window.innerWidth * 0.7); // 最初に定義
 
 const keyboardEl = document.getElementById('keyboard');
 const pressedNotes = new Set();
@@ -216,17 +217,18 @@ let stave = null;
 let staveNotes = [];
 
 function setupVexFlow() {
+  staveWidth = Math.floor(window.innerWidth * 0.7);
+
   renderer = new Vex.Flow.Renderer(document.getElementById("notation"), Vex.Flow.Renderer.Backends.SVG);
-  renderer.resize(700, 150);
+  renderer.resize(staveWidth, 150);
   context = renderer.getContext();
 
-  stave = new Vex.Flow.Stave(10, 40, 680);
+  stave = new Vex.Flow.Stave(10, 40, staveWidth - 40); // ← 左右に余白をとる
   stave.addClef("treble").setContext(context).draw();
 
-  staveNotes = []; // 表示音符の初期化
+  staveNotes = [];
 }
-
-const MAX_VISIBLE = 12; // 一度に表示する最大ブロック数（1ブロック = 3つのNote）
+const MAX_VISIBLE = 10; // 一度に表示する最大ブロック数（1ブロック = 3つのNote）
 
 function addChordWithLabelsToStave(midiNotes) {
   if (!midiNotes.length) return;
@@ -279,7 +281,7 @@ function addChordWithLabelsToStave(midiNotes) {
 
   new Vex.Flow.Formatter()
     .joinVoices([voice])
-    .format([voice], 600);
+    .format([voice], staveWidth - 80); // ← staveWidth に変更
 
   voice.draw(context, stave);
 }
@@ -294,4 +296,8 @@ document.getElementById('keySizeSlider').addEventListener('input', (e) => {
   // 再構築
   keyboardEl.innerHTML = '';  // 一度全部削除
   buildKeyboard();
+});
+
+window.addEventListener('resize', () => {
+  setupVexFlow(); // レンダリングをリセット
 });

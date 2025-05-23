@@ -40,8 +40,13 @@ body {
 }
 
 #notation {
-  margin-top: 2rem;
+  width: 70vw; /* 画面の7割 */
+  max-width: 1000px;
   background: white;
   padding: 1rem;
   border-radius: 8px;
+  overflow-x: auto;
+  display: flex;
+  justify-content: center;
 }
+
