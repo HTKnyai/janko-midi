@@ -5,7 +5,7 @@ let KEY_WIDTH = 70;
 let KEY_HEIGHT = 50;
 let staveWidth = Math.floor(window.innerWidth * 0.7); // 最初に定義
 
-let keyboardOriginNote = 21; // A0 = MIDI 21
+let keyboardOriginNote = 60; // A0 = MIDI 21
 
 const keyboardEl = document.getElementById('keyboard');
 const pressedNotes = new Set();
