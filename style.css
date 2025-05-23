@@ -141,3 +141,15 @@ body {
   padding: 4px 8px;
   font-size: 1.2rem;
 }
+
+#keyboard-slide-control {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin: 0.5rem 0;
+}
+
+#keyboard-slide-control button {
+  padding: 4px 8px;
+  font-size: 1.1rem;
+}

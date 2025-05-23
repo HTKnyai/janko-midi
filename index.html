@@ -17,11 +17,17 @@
 
   <label for="keySizeSlider">キーサイズ:</label>
   <input type="range" id="keySizeSlider" min="40" max="120" value="70" />
-  <div id="keyboard-slide-control">
-    <button id="slide-left">◀️</button>
-    <span id="offset-display">X: 0</span>
-    <button id="slide-right">▶️</button>
-  </div>
+    <div id="keyboard-slide-control">
+    <div>
+        <button id="slide-left">◀️</button>
+        <button id="slide-right">▶️</button>
+    </div>
+    <div>
+        <button id="slide-up">🔼</button>
+        <button id="slide-down">🔽</button>
+    </div>
+    <span id="offset-display">X: 0, Y: 0</span>
+    </div>
   <div id="keyboard"></div>
   <div id="code-display"></div>
   <div id="log"></div>

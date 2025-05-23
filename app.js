@@ -422,9 +422,9 @@ function createMiniKeyboard2Row(noteNumbers) {
 
 // キーボード配列（左上が (x=0, y=0)）
 const keyMap = [
-  'qwertyuiop',
-  'asdfghjkl;',
-  'zxcvbnm,./',
+  ['q','w','e','r','t','y','u','i','o','p'],
+  ['a','s','d','f','g','h','j','k','l',';'],
+  ['z','x','c','v','b','n','m',',','.','/']
 ];
 
 document.addEventListener('keydown', (e) => {
@@ -433,7 +433,7 @@ document.addEventListener('keydown', (e) => {
     const row = keyMap[y];
     const x = row.indexOf(e.key.toLowerCase());
     if (x !== -1) {
-      const note = midiNoteFromPosition(x + keyboardOffsetX, y);
+      const note = midiNoteFromPosition(x + keyboardOffsetX, y + keyboardOffsetY);
       pressNote(note);
     }
   }
@@ -444,24 +444,40 @@ document.addEventListener('keyup', (e) => {
     const row = keyMap[y];
     const x = row.indexOf(e.key.toLowerCase());
     if (x !== -1) {
-      const note = midiNoteFromPosition(x + keyboardOffsetX, y);
+      const note = midiNoteFromPosition(x + keyboardOffsetX, y + keyboardOffsetY);
       releaseNote(note);
     }
   }
 });
 
 // スライド位置（初期: 0）
-let keyboardOffsetX = 0; // ← スライド位置（初期: 0）
+let keyboardOffsetX = 0;
+let keyboardOffsetY = 0;
 
 const offsetDisplay = document.getElementById('offset-display');
+
+function updateOffsetDisplay() {
+  offsetDisplay.textContent = `X: ${keyboardOffsetX}, Y: ${keyboardOffsetY}`;
+}
+
 document.getElementById('slide-left').addEventListener('click', () => {
   keyboardOffsetX = Math.max(keyboardOffsetX - 1, -10);
-  offsetDisplay.textContent = `X: ${keyboardOffsetX}`;
+  updateOffsetDisplay();
 });
 document.getElementById('slide-right').addEventListener('click', () => {
   keyboardOffsetX = Math.min(keyboardOffsetX + 1, 10);
-  offsetDisplay.textContent = `X: ${keyboardOffsetX}`;
+  updateOffsetDisplay();
 });
+document.getElementById('slide-up').addEventListener('click', () => {
+  keyboardOffsetY = Math.max(keyboardOffsetY - 1, -5);
+  updateOffsetDisplay();
+});
+document.getElementById('slide-down').addEventListener('click', () => {
+  keyboardOffsetY = Math.min(keyboardOffsetY + 1, 5);
+  updateOffsetDisplay();
+});
+
+updateOffsetDisplay(); // 初期表示
 
 renderChordChart();
 
