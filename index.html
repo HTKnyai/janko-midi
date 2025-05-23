@@ -9,28 +9,19 @@
   <script src="lib/vexflow.js"></script>
 </head>
 <body>
-  <header>
+    <header>
     <h1><i data-feather="grid"></i> Janko MIDI Input Tool</h1>
-  </header>
-
-  <!-- 🧠 説明折りたたみ -->
-  <div class="accordion">
-    <button class="accordion-toggle" id="usage-toggle">
-      <i data-feather="info"></i> 使い方を表示
+    <button id="settings-button" class="settings-icon" aria-label="設定">
+        <i data-feather="settings"></i>
     </button>
-    <div class="accordion-content" id="usage-content">
-      <p>これはヤンコ配列を用いた仮想MIDIキーボードです。コードの押し方や入力記録などが可能です。キーボードのQWERTY入力により操作できます。</p>
-    </div>
-  </div>
+    </header>
 
-  <main class="main-container">
-    <!-- 🎵 コードチャート -->
-    <section id="chord-chart-container">
-      <div id="chord-chart" class="centered"></div>
-    </section>
+  <!-- ⚙️ モーダル -->
+  <div id="settings-modal" class="modal hidden">
+    <div class="modal-content">
+      <button id="close-modal" class="close-button"><i data-feather="x"></i></button>
+      <h2>設定</h2>
 
-    <!-- 🎛️ コントロールパネル -->
-    <section class="control-panel">
       <div class="control-block vertical">
         <label for="keyboard-range">音域</label>
         <div class="control-group">
@@ -55,27 +46,50 @@
         </div>
         <span id="offset-display">X: 0, Y: 0</span>
       </div>
+
+      <hr />
+
+      <h3>使い方</h3>
+      <p>ヤンコ配列を採用した仮想キーボードです。<br>全てのキー（調）において、同一パターンの運指が可能で、音楽理論の理解や即興演奏の習得に役立ちます。<br>QWERTY入力・マウス操作対応。<br>コード認識や演奏ログ機能も搭載。</p>
+    </div>
+  </div>
+
+  <main class="main-container">
+    <section id="chord-chart-container">
+      <div id="chord-chart" class="centered"></div>
     </section>
 
-    <!-- 🎹 鍵盤・コード表示・ログ・譜面 -->
     <section id="keyboard"></section>
-    <section id="code-display"></section>
+    <section id="code-display" style="min-height: 2em;"></section>
     <section id="log"></section>
-    <section id="notation"></section>
   </main>
+    <section id="notation"></section>
 
   <script>
     feather.replace();
     document.addEventListener('DOMContentLoaded', () => {
-      const toggle = document.getElementById('usage-toggle');
-      const content = document.getElementById('usage-content');
-      toggle.addEventListener('click', () => {
-        content.style.display = content.style.display === 'block' ? 'none' : 'block';
+      const modal = document.getElementById('settings-modal');
+      document.getElementById('settings-button').addEventListener('click', () => {
+        modal.classList.remove('hidden');
+        feather.replace(); 
       });
-      content.style.display = 'block'; // 初期状態で開いた状態に
+      document.getElementById('close-modal').addEventListener('click', () => {
+        modal.classList.add('hidden');
+      });
+    });
+
+    // モーダルが開いていて、かつクリックが中身以外なら閉じる
+    const modal = document.getElementById('settings-modal');
+    const modalContent = modal.querySelector('.modal-content');
+    document.addEventListener('click', (e) => {
+
+    if (!modal.classList.contains('hidden') && !modalContent.contains(e.target) && !e.target.closest('#settings-button')) {
+        modal.classList.add('hidden');
+    }
     });
   </script>
 
   <script src="app.js"></script>
 </body>
+<div class="version-badge">v1.0.0<br>by Tamochi/HTKnyai</div>
 </html>
