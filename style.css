@@ -1,0 +1,33 @@
+body {
+  font-family: sans-serif;
+  background: #f0f0f0;
+  padding: 1rem;
+}
+
+#keyboard {
+  position: relative;
+  margin-top: 1rem;
+}
+
+.key {
+  position: absolute;
+  width: 60px;
+  height: 40px;
+  background: white;
+  border: 1px solid #999;
+  border-radius: 6px;
+  box-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+  text-align: center;
+  line-height: 40px;
+  user-select: none;
+}
+
+.key.black {
+  background: black;
+  color: white;
+}
+
+.key .label {
+  font-size: 0.8rem;
+  pointer-events: none;
+}
