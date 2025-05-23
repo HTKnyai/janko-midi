@@ -80,6 +80,34 @@ function buildKeyboard() {
   }
 }
 
+const rangeSlider = document.getElementById('keyboard-range');
+
+function updateKeyboardFromSlider() {
+  keyboardOriginNote = parseInt(rangeSlider.value);
+  buildKeyboard();
+}
+
+// スライダー直接操作
+rangeSlider.addEventListener('input', updateKeyboardFromSlider);
+
+// ◀️ボタン：1ノート下げる
+document.getElementById('range-left').addEventListener('click', () => {
+  if (keyboardOriginNote > 21) {
+    keyboardOriginNote--;
+    rangeSlider.value = keyboardOriginNote;
+    buildKeyboard();
+  }
+});
+
+// ▶️ボタン：1ノート上げる
+document.getElementById('range-right').addEventListener('click', () => {
+  if (keyboardOriginNote < 108) {
+    keyboardOriginNote++;
+    rangeSlider.value = keyboardOriginNote;
+    buildKeyboard();
+  }
+});
+
 // ===== コード判定 =====
 const chordTypes = [
   { name: '7', intervals: [0, 4, 7, 10] },
