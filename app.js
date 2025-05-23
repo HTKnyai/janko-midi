@@ -1,6 +1,6 @@
 // ===== ヤンコ鍵盤描画 =====
 const NUM_ROWS = 5;
-const NUM_KEYS_PER_ROW = 20;
+const NUM_KEYS_PER_ROW = 16;
 const KEY_WIDTH = 70;
 const KEY_HEIGHT = 50;
 
@@ -136,8 +136,7 @@ function pressNote(note) {
     playNote(note);
     updateChordDisplay(pressedNotes);
 
-    // すべての押下ノートを和音として渡す
-    addChordToStave(Array.from(pressedNotes).sort((a, b) => a - b));
+    addChordWithLabelsToStave(Array.from(pressedNotes).sort((a, b) => a - b));
   }
 }
 
@@ -222,60 +221,63 @@ function setupVexFlow() {
   staveNotes = []; // 表示音符の初期化
 }
 
-function addNoteToStave(midiNote) {
-  const pitchNames = ['c', 'c#', 'd', 'd#', 'e', 'f', 'f#', 'g', 'g#', 'a', 'a#', 'b'];
-  const name = pitchNames[midiNote % 12];
-  const octave = Math.floor(midiNote / 12) - 1;
-  const key = name.replace('#', '') + "/" + octave;
+const MAX_VISIBLE = 12; // 一度に表示する最大ブロック数（1ブロック = 3つのNote）
 
-  const note = new Vex.Flow.StaveNote({
-    keys: [key],
-    duration: "q"
-  });
-
-  if (name.includes("#")) {
-    note.addModifier(new Vex.Flow.Accidental("#"), 0); // ✅ 正しい引数順
-  }
-
-  staveNotes.push(note);
-
-  context.clear();
-  stave.setContext(context).draw();
-  Vex.Flow.Formatter.FormatAndDraw(context, stave, staveNotes.slice(-8)); // 最大8音表示
-}
-
-function addChordToStave(midiNotes) {
+function addChordWithLabelsToStave(midiNotes) {
   if (!midiNotes.length) return;
 
-  const pitchNames = ['c', 'c#', 'd', 'd#', 'e', 'f', 'f#', 'g', 'g#', 'a', 'a#', 'b'];
-
-  // 音高文字列の配列を作成
-  const keys = midiNotes.map(note => {
-    const name = pitchNames[note % 12];
-    const octave = Math.floor(note / 12) - 1;
-    return name.replace('#', '') + "/" + octave;
+  const pitchNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+  const keys = midiNotes.map(n => {
+    const name = pitchNames[n % 12];
+    const octave = Math.floor(n / 12) - 1;
+    return name.replace('#', '').toLowerCase() + "/" + octave;
   });
 
-  const note = new Vex.Flow.StaveNote({
+  const staveNote = new Vex.Flow.StaveNote({
     keys: keys,
     duration: "q"
-  });
+  }).setContext(context);
 
-  // 必要な場所に # をつける
-  midiNotes.forEach((noteNumber, i) => {
-    if (pitchNames[noteNumber % 12].includes('#')) {
-      note.addModifier(new Vex.Flow.Accidental("#"), i);
+  midiNotes.forEach((n, i) => {
+    if (pitchNames[n % 12].includes('#')) {
+      staveNote.addModifier(new Vex.Flow.Accidental("#"), i);
     }
   });
 
-  staveNotes.push(note);
+  const chordName = detectChord(new Set(midiNotes));
+
+  const chordText = new Vex.Flow.TextNote({
+    text: chordName || '',
+    duration: "q",
+    line: -1
+  }).setJustification(Vex.Flow.TextNote.Justification.CENTER)
+    .setContext(context);
+
+  const labelText = new Vex.Flow.TextNote({
+    text: midiNotes.map(n => pitchNames[n % 12]).join(" "),
+    duration: "q",
+    line: 9
+  }).setJustification(Vex.Flow.TextNote.Justification.CENTER)
+    .setContext(context);
+
+  // 👇 累積
+  staveNotes.push(chordText, staveNote, labelText);
+
+  // ⛳ 表示範囲を末尾の N個に制限
+  const visibleNotes = staveNotes.slice(-MAX_VISIBLE * 3);
+
+  const voice = new Vex.Flow.Voice({ num_beats: 4, beat_value: 4 }).setStrict(false);
+  voice.addTickables(visibleNotes);
+
   context.clear();
   stave.setContext(context).draw();
-  Vex.Flow.Formatter.FormatAndDraw(context, stave, staveNotes.slice(-8));
+
+  new Vex.Flow.Formatter()
+    .joinVoices([voice])
+    .format([voice], 600);
+
+  voice.draw(context, stave);
 }
 
-// 呼び出し
 setupVexFlow();
-
-
 buildKeyboard();
