@@ -1,45 +1,80 @@
 <!DOCTYPE html>
 <html lang="ja">
-    
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Janko MIDI Input Tool</title>
   <link rel="stylesheet" href="style.css">
+  <script src="https://unpkg.com/feather-icons"></script>
   <script src="lib/vexflow.js"></script>
 </head>
 <body>
-  <h1>Janko MIDI Input Tool</h1>
+  <header>
+    <h1><i data-feather="grid"></i> Janko MIDI Input Tool</h1>
+  </header>
 
-  <div id="chord-chart-container">
-    <div id="chord-chart"></div>
+  <!-- 🧠 説明折りたたみ -->
+  <div class="accordion">
+    <button class="accordion-toggle" id="usage-toggle">
+      <i data-feather="info"></i> 使い方を表示
+    </button>
+    <div class="accordion-content" id="usage-content">
+      <p>これはヤンコ配列を用いた仮想MIDIキーボードです。コードの押し方や入力記録などが可能です。キーボードのQWERTY入力により操作できます。</p>
+    </div>
   </div>
-      <div id="keyboard-range-control"></div>
-  <label for="keyboard-range">音域:</label>
 
-        <button id="range-left">◀️</button>
-        <input type="range" id="keyboard-range" min="21" max="108" value="60" />
-        <button id="range-right">▶️</button>
-    </div>
+  <main class="main-container">
+    <!-- 🎵 コードチャート -->
+    <section id="chord-chart-container">
+      <div id="chord-chart" class="centered"></div>
+    </section>
 
-  <label for="keySizeSlider">キーサイズ:</label>
-    <input type="range" id="keySizeSlider" min="40" max="120" value="70" />
-    <div id="keyboard-slide-control">
-    <label>操作基準位置:</label>
-    <div>
-        <button id="slide-left">◀️</button>
-        <button id="slide-right">▶️</button>
-    </div>
-    <div>
-        <button id="slide-up">🔼</button>
-        <button id="slide-down">🔽</button>
-    </div>
-    <span id="offset-display">X: 0, Y: 0</span>
-    </div>
-  <div id="keyboard"></div>
-  <div id="code-display"></div>
-  <div id="log"></div>
-  <div id="notation"></div>
+    <!-- 🎛️ コントロールパネル -->
+    <section class="control-panel">
+      <div class="control-block vertical">
+        <label for="keyboard-range">音域</label>
+        <div class="control-group">
+          <button id="range-left" class="icon-button"><i data-feather="chevron-left"></i></button>
+          <input type="range" id="keyboard-range" min="21" max="108" value="60" />
+          <button id="range-right" class="icon-button"><i data-feather="chevron-right"></i></button>
+        </div>
+      </div>
+
+      <div class="control-block vertical">
+        <label for="keySizeSlider">キーサイズ</label>
+        <input type="range" id="keySizeSlider" min="40" max="120" value="70" />
+      </div>
+
+      <div class="control-block">
+        <label>操作基準位置</label>
+        <div class="control-group">
+          <button id="slide-left" class="icon-button"><i data-feather="arrow-left"></i></button>
+          <button id="slide-right" class="icon-button"><i data-feather="arrow-right"></i></button>
+          <button id="slide-up" class="icon-button"><i data-feather="arrow-up"></i></button>
+          <button id="slide-down" class="icon-button"><i data-feather="arrow-down"></i></button>
+        </div>
+        <span id="offset-display">X: 0, Y: 0</span>
+      </div>
+    </section>
+
+    <!-- 🎹 鍵盤・コード表示・ログ・譜面 -->
+    <section id="keyboard"></section>
+    <section id="code-display"></section>
+    <section id="log"></section>
+    <section id="notation"></section>
+  </main>
+
+  <script>
+    feather.replace();
+    document.addEventListener('DOMContentLoaded', () => {
+      const toggle = document.getElementById('usage-toggle');
+      const content = document.getElementById('usage-content');
+      toggle.addEventListener('click', () => {
+        content.style.display = content.style.display === 'block' ? 'none' : 'block';
+      });
+      content.style.display = 'block'; // 初期状態で開いた状態に
+    });
+  </script>
 
   <script src="app.js"></script>
 </body>

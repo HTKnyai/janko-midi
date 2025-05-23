@@ -344,15 +344,6 @@ function addChordWithLabelsToStave(midiNotes) {
 
 setupVexFlow();
 buildKeyboard();
-document.getElementById('keySizeSlider').addEventListener('input', (e) => {
-  const newSize = parseInt(e.target.value);
-  KEY_WIDTH = newSize;
-  KEY_HEIGHT = Math.floor(newSize * 0.714); // 比率維持（例: 70x50）
-
-  // 再構築
-  keyboardEl.innerHTML = '';  // 一度全部削除
-  buildKeyboard();
-});
 
 window.addEventListener('resize', () => {
   setupVexFlow(); // レンダリングをリセット
@@ -515,6 +506,94 @@ document.getElementById('slide-up').addEventListener('click', () => {
 document.getElementById('slide-down').addEventListener('click', () => {
   keyboardOffsetY = Math.min(keyboardOffsetY + 1, 5);
   updateOffsetDisplay();
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  const rangeSlider = document.getElementById('keyboard-range');
+  const keySizeSlider = document.getElementById('keySizeSlider');
+
+  // ===== 初期描画 =====
+  setupVexFlow();
+  buildKeyboard();
+  renderChordChart();
+  updateOffsetDisplay();
+
+  // ===== スライダー：音域調整 =====
+  rangeSlider.addEventListener('input', updateKeyboardFromSlider);
+
+  document.getElementById('range-left').addEventListener('click', () => {
+    if (keyboardOriginNote > 21) {
+      keyboardOriginNote--;
+      rangeSlider.value = keyboardOriginNote;
+      updateKeyboardFromSlider();
+    }
+  });
+
+  document.getElementById('range-right').addEventListener('click', () => {
+    if (keyboardOriginNote < 108) {
+      keyboardOriginNote++;
+      rangeSlider.value = keyboardOriginNote;
+      updateKeyboardFromSlider();
+    }
+  });
+
+  // ===== スライダー：キーサイズ調整 =====
+  keySizeSlider.addEventListener('input', (e) => {
+    const newSize = parseInt(e.target.value);
+    KEY_WIDTH = newSize;
+    KEY_HEIGHT = Math.floor(newSize * 0.714);
+    buildKeyboard();
+  });
+
+  // ===== 操作基準位置スライド =====
+  document.getElementById('slide-left').addEventListener('click', () => {
+    keyboardOffsetX = Math.max(keyboardOffsetX - 1, -10);
+    updateOffsetDisplay();
+  });
+  document.getElementById('slide-right').addEventListener('click', () => {
+    keyboardOffsetX = Math.min(keyboardOffsetX + 1, 10);
+    updateOffsetDisplay();
+  });
+  document.getElementById('slide-up').addEventListener('click', () => {
+    keyboardOffsetY = Math.max(keyboardOffsetY - 1, -5);
+    updateOffsetDisplay();
+  });
+  document.getElementById('slide-down').addEventListener('click', () => {
+    keyboardOffsetY = Math.min(keyboardOffsetY + 1, 5);
+    updateOffsetDisplay();
+  });
+
+  // ===== ウィンドウリサイズ =====
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      setupVexFlow();
+    }, 300);
+  });
+
+  // ===== キーボード入力（qwerty）対応 =====
+  document.addEventListener('keydown', (e) => {
+    if (e.repeat) return;
+    for (let y = 0; y < keyMap.length; y++) {
+      const row = keyMap[y];
+      const x = row.indexOf(e.key.toLowerCase());
+      if (x !== -1) {
+        const note = midiNoteFromPosition(x + keyboardOffsetX, y + keyboardOffsetY);
+        pressNote(note);
+      }
+    }
+  });
+
+  document.addEventListener('keyup', (e) => {
+    for (let y = 0; y < keyMap.length; y++) {
+      const row = keyMap[y];
+      const x = row.indexOf(e.key.toLowerCase());
+      if (x !== -1) {
+        const note = midiNoteFromPosition(x + keyboardOffsetX, y + keyboardOffsetY);
+        releaseNote(note);
+      }
+    }
+  });
 });
 
 updateOffsetDisplay(); // 初期表示

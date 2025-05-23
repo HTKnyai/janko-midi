@@ -165,3 +165,109 @@ body {
   padding: 4px 8px;
   font-size: 1.2rem;
 }
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: #f4f4f8;
+  color: #333;
+  margin: 0;
+  padding: 0;
+}
+
+h1 {
+  background: #1e1e2f;
+  color: #fff;
+  margin: 0;
+  padding: 1rem 2rem;
+  font-size: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.main-container {
+  padding: 1rem 2rem;
+  max-width: 1200px;
+  margin: auto;
+}
+
+.control-panel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin: 1rem 0;
+  background: #fff;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.control-block {
+  flex: 1;
+  min-width: 250px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.control-group {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.control-block label {
+  font-weight: bold;
+  margin-bottom: 0.3rem;
+}
+
+input[type="range"] {
+  flex: 1;
+}
+
+button {
+  padding: 0.4rem 0.8rem;
+  font-size: 1rem;
+  background: #1e88e5;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+button:hover {
+  background: #1565c0;
+}
+
+#explanation-container {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+#toggle-explanation {
+  background: #444;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+#explanation {
+  margin-top: 0.5rem;
+  background: #f4f4f4;
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: left;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.centered {
+  display: flex;
+  justify-content: center;
+}
+.control-block.vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
