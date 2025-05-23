@@ -7,11 +7,6 @@ let staveWidth = Math.floor(window.innerWidth * 0.7); // 最初に定義
 
 let keyboardOriginNote = 21; // A0 = MIDI 21
 
-document.getElementById('keyboard-range').addEventListener('input', (e) => {
-  keyboardOriginNote = parseInt(e.target.value);
-  buildKeyboard();
-});
-
 const keyboardEl = document.getElementById('keyboard');
 const pressedNotes = new Set();
 let startTime = null;
@@ -91,27 +86,6 @@ function updateKeyboardFromSlider() {
   keyboardOriginNote = parseInt(rangeSlider.value);
   buildKeyboard();
 }
-
-// スライダー直接操作
-rangeSlider.addEventListener('input', updateKeyboardFromSlider);
-
-// ◀️ボタン：1ノート下げる
-document.getElementById('range-left').addEventListener('click', () => {
-  if (keyboardOriginNote > 21) {
-    keyboardOriginNote--;
-    rangeSlider.value = keyboardOriginNote;
-    updateKeyboardFromSlider(); // ← buildKeyboard() から変更！
-  }
-});
-
-// ▶️ボタン：1ノート上げる
-document.getElementById('range-right').addEventListener('click', () => {
-  if (keyboardOriginNote < 108) {
-    keyboardOriginNote++;
-    rangeSlider.value = keyboardOriginNote;
-    updateKeyboardFromSlider(); // ← buildKeyboard() から変更！
-  }
-});
 
 // ===== コード判定 =====
 const chordTypes = [
@@ -458,29 +432,6 @@ const keyMap = [
   ['z','x','c','v','b','n','m',',','.','/']
 ];
 
-document.addEventListener('keydown', (e) => {
-  if (e.repeat) return;
-  for (let y = 0; y < keyMap.length; y++) {
-    const row = keyMap[y];
-    const x = row.indexOf(e.key.toLowerCase());
-    if (x !== -1) {
-      const note = midiNoteFromPosition(x + keyboardOffsetX, y + keyboardOffsetY);
-      pressNote(note);
-    }
-  }
-});
-
-document.addEventListener('keyup', (e) => {
-  for (let y = 0; y < keyMap.length; y++) {
-    const row = keyMap[y];
-    const x = row.indexOf(e.key.toLowerCase());
-    if (x !== -1) {
-      const note = midiNoteFromPosition(x + keyboardOffsetX, y + keyboardOffsetY);
-      releaseNote(note);
-    }
-  }
-});
-
 // スライド位置（初期: 0）
 let keyboardOffsetX = 0;
 let keyboardOffsetY = 0;
@@ -545,24 +496,6 @@ document.addEventListener('DOMContentLoaded', () => {
     buildKeyboard();
   });
 
-  // ===== 操作基準位置スライド =====
-  document.getElementById('slide-left').addEventListener('click', () => {
-    keyboardOffsetX = Math.max(keyboardOffsetX - 1, -10);
-    updateOffsetDisplay();
-  });
-  document.getElementById('slide-right').addEventListener('click', () => {
-    keyboardOffsetX = Math.min(keyboardOffsetX + 1, 10);
-    updateOffsetDisplay();
-  });
-  document.getElementById('slide-up').addEventListener('click', () => {
-    keyboardOffsetY = Math.max(keyboardOffsetY - 1, -5);
-    updateOffsetDisplay();
-  });
-  document.getElementById('slide-down').addEventListener('click', () => {
-    keyboardOffsetY = Math.min(keyboardOffsetY + 1, 5);
-    updateOffsetDisplay();
-  });
-
   // ===== ウィンドウリサイズ =====
   window.addEventListener('resize', () => {
     clearTimeout(resizeTimer);
@@ -596,8 +529,5 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-updateOffsetDisplay(); // 初期表示
-
-renderChordChart();
 
 
