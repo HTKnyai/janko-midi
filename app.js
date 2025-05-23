@@ -129,11 +129,15 @@ function updateLogDisplay() {
 function pressNote(note) {
   if (!pressedNotes.has(note)) {
     pressedNotes.add(note);
+
     const els = document.querySelectorAll(`[data-note='${note}']`);
     els.forEach(el => el.classList.add('pressed'));
+
     playNote(note);
     updateChordDisplay(pressedNotes);
-    addNoteToStave(note); // 🎼 五線譜に追加
+
+    // すべての押下ノートを和音として渡す
+    addChordToStave(Array.from(pressedNotes).sort((a, b) => a - b));
   }
 }
 
@@ -202,8 +206,6 @@ function stopNote(note) {
 }
 
 // ===== 五線譜描画 =====
-
-
 let renderer = null;
 let context = null;
 let stave = null;
@@ -240,6 +242,36 @@ function addNoteToStave(midiNote) {
   context.clear();
   stave.setContext(context).draw();
   Vex.Flow.Formatter.FormatAndDraw(context, stave, staveNotes.slice(-8)); // 最大8音表示
+}
+
+function addChordToStave(midiNotes) {
+  if (!midiNotes.length) return;
+
+  const pitchNames = ['c', 'c#', 'd', 'd#', 'e', 'f', 'f#', 'g', 'g#', 'a', 'a#', 'b'];
+
+  // 音高文字列の配列を作成
+  const keys = midiNotes.map(note => {
+    const name = pitchNames[note % 12];
+    const octave = Math.floor(note / 12) - 1;
+    return name.replace('#', '') + "/" + octave;
+  });
+
+  const note = new Vex.Flow.StaveNote({
+    keys: keys,
+    duration: "q"
+  });
+
+  // 必要な場所に # をつける
+  midiNotes.forEach((noteNumber, i) => {
+    if (pitchNames[noteNumber % 12].includes('#')) {
+      note.addModifier(new Vex.Flow.Accidental("#"), i);
+    }
+  });
+
+  staveNotes.push(note);
+  context.clear();
+  stave.setContext(context).draw();
+  Vex.Flow.Formatter.FormatAndDraw(context, stave, staveNotes.slice(-8));
 }
 
 // 呼び出し
