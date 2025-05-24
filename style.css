@@ -112,14 +112,18 @@ header h1 {
 }
 
 #notation {
-  width: 100%; /* 横幅いっぱい（親要素内） */
-  max-width: 100%;
-  padding: 0 2rem; /* 左右に余白を残す */
-  margin: 0 1rem auto; /* 上下の余白と中央寄せ */
+  width: 640px; /* 例: 60px * 10 + padding調整 */
+  margin: 1rem auto;
   background: white;
+  padding: 1rem;
   border-radius: 8px;
   overflow-x: auto;
-  box-sizing: border-box; /* paddingを含んで幅計算 */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+#notation-wrapper {
+  overflow-x: auto;
+  padding: 0 20px;
 }
 
 #chord-chart {

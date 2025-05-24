@@ -3,7 +3,8 @@ const NUM_ROWS = 5;
 const NUM_KEYS_PER_ROW = 16;
 let KEY_WIDTH = 70;
 let KEY_HEIGHT = 50;
-let staveWidth = Math.floor(window.innerWidth * 0.7); // 最初に定義
+
+let staveWidth = window.innerWidth - 40;  // 最初に定義
 
 let keyboardOriginNote = 58; // A0 = MIDI 21
 
@@ -127,7 +128,7 @@ function detectChord(noteSet) {
       }
     }
   }
-  return 'Unknown';
+  return '';
 }
 
 function updateChordDisplay(noteSet) {
@@ -241,10 +242,12 @@ let context = null;
 let stave = null;
 let staveNotes = [];
 
-function setupVexFlow() {
-  staveWidth = Math.floor(window.innerWidth * 0.7);
+const MAX_VISIBLE = 10; // 一度に表示する最大ブロック数（1ブロック = 3つのNote）
+const NOTE_BLOCK_WIDTH = 60; // 1つの音符＋ラベル等に必要な幅（調整可能）
 
-  // 🧼 既存の子要素を削除
+function setupVexFlow() {
+  staveWidth = MAX_VISIBLE * NOTE_BLOCK_WIDTH + 40; // 10音符分＋余白
+
   const notationEl = document.getElementById("notation");
   notationEl.innerHTML = "";
 
@@ -252,13 +255,11 @@ function setupVexFlow() {
   renderer.resize(staveWidth, 150);
   context = renderer.getContext();
 
-  stave = new Vex.Flow.Stave(10, 40, staveWidth - 40);
+  stave = new Vex.Flow.Stave(10, 40, staveWidth - 20);
   stave.addClef("treble").setContext(context).draw();
 
   staveNotes = [];
 }
-
-const MAX_VISIBLE = 10; // 一度に表示する最大ブロック数（1ブロック = 3つのNote）
 
 function addChordWithLabelsToStave(midiNotes) {
   if (!midiNotes.length) return;
@@ -273,7 +274,7 @@ function addChordWithLabelsToStave(midiNotes) {
   const staveNote = new Vex.Flow.StaveNote({
     keys: keys,
     duration: "q"
-  }).setContext(context);
+  });
 
   midiNotes.forEach((n, i) => {
     if (pitchNames[n % 12].includes('#')) {
@@ -287,33 +288,47 @@ function addChordWithLabelsToStave(midiNotes) {
     text: chordName || '',
     duration: "q",
     line: -1
-  }).setJustification(Vex.Flow.TextNote.Justification.CENTER)
-    .setContext(context);
+  }).setJustification(Vex.Flow.TextNote.Justification.CENTER);
 
   const labelText = new Vex.Flow.TextNote({
     text: midiNotes.map(n => pitchNames[n % 12]).join(" "),
     duration: "q",
     line: 9
-  }).setJustification(Vex.Flow.TextNote.Justification.CENTER)
-    .setContext(context);
+  }).setJustification(Vex.Flow.TextNote.Justification.CENTER);
 
-  // 👇 累積
-  staveNotes.push(chordText, staveNote, labelText);
+  staveNote.setContext(context);
+  chordText.setContext(context);
+  labelText.setContext(context);
 
-  // ⛳ 表示範囲を末尾の N個に制限
-  const visibleNotes = staveNotes.slice(-MAX_VISIBLE * 3);
 
-  const voice = new Vex.Flow.Voice({ num_beats: 4, beat_value: 4 }).setStrict(false);
-  voice.addTickables(visibleNotes);
+  // 👇 音符・コード名・音名ラベルをまとめてpush
+  staveNotes.push({
+    note: staveNote,
+    chordText: chordText,
+    labelText: labelText
+  });
 
-  context.clear();
+  const visible = staveNotes.slice(-MAX_VISIBLE);
+
+  // 🧼 再描画
+  context.clearRect(0, 0, staveWidth, 150);
   stave.setContext(context).draw();
 
-  new Vex.Flow.Formatter()
-    .joinVoices([voice])
-    .format([voice], staveWidth - 80); // ← staveWidth に変更
+  const noteVoice = new Vex.Flow.Voice({ num_beats: 4, beat_value: 4 }).setStrict(false);
+  const chordVoice = new Vex.Flow.Voice({ num_beats: 4, beat_value: 4 }).setStrict(false);
+  const labelVoice = new Vex.Flow.Voice({ num_beats: 4, beat_value: 4 }).setStrict(false);
 
-  voice.draw(context, stave);
+  noteVoice.addTickables(visible.map(v => v.note));
+  chordVoice.addTickables(visible.map(v => v.chordText));
+  labelVoice.addTickables(visible.map(v => v.labelText));
+
+  new Vex.Flow.Formatter()
+    .joinVoices([noteVoice])
+    .format([noteVoice, chordVoice, labelVoice], staveWidth - 40);
+
+  noteVoice.draw(context, stave);
+  chordVoice.draw(context, stave);
+  labelVoice.draw(context, stave);
 }
 
 setupVexFlow();
