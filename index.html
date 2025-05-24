@@ -92,6 +92,16 @@
   </script>
 
   <script src="app.js"></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+        const badge = document.querySelector('.version-badge');
+        if (badge) {
+        setTimeout(() => {
+            badge.classList.add('hidden');
+        }, 3000); // 3秒後にフェードアウト
+        }
+    });
+  </script>
 </body>
 <div class="version-badge">v1.0.0<br>by Tamochi/HTKnyai</div>
 </html>
