@@ -17,6 +17,19 @@ const pressedNotes = new Set();
 let startTime = null;
 const eventLog = [];
 
+let useDoremi = false;
+
+// キーボード配列（左上が (x=0, y=0)）
+const keyMap = [
+  ['q','w','e','r','t','y','u','i','o','p'],
+  ['a','s','d','f','g','h','j','k','l',';'],
+  ['z','x','c','v','b','n','m',',','.','/']
+];
+
+// スライド位置（初期: 0）
+let keyboardOffsetX = 0;
+let keyboardOffsetY = 1;
+
 function getTime() {
   if (startTime === null) {
     startTime = performance.now();
@@ -35,25 +48,48 @@ function midiNoteFromPosition(x, y) {
   return keyboardOriginNote + x * 2 + y;
 }
 
+function getKeyCharForPosition(x, y) {
+  const gx = x - keyboardOffsetX;
+  const gy = y - keyboardOffsetY;
+
+  if (gy >= 0 && gy < keyMap.length) {
+    const row = keyMap[gy];
+    if (gx >= 0 && gx < row.length) {
+      return row[gx];
+    }
+  }
+  return null;
+}
+
 function createKey(x, y) {
   const note = midiNoteFromPosition(x, y);
   const key = document.createElement('div');
   key.className = 'key';
   if (isBlackKey(note)) key.classList.add('black');
 
-  // Janko配列で右上にずらす
   key.style.width = `${KEY_WIDTH}px`;
   key.style.height = `${KEY_HEIGHT}px`;
   key.style.left = `${x * KEY_WIDTH + y * (KEY_WIDTH / 2)}px`;
   key.style.top = `${y * KEY_HEIGHT}px`;
   key.dataset.note = note;
 
+  // 音名ラベル
   const label = document.createElement('div');
   label.className = 'label';
   label.innerText = noteLabel(note);
   label.style.fontSize = `${Math.floor(KEY_HEIGHT * 0.4)}px`;
   key.appendChild(label);
 
+  // 対応するQWERTYキー表示ラベル
+  const keyChar = getKeyCharForPosition(x, y);
+  if (keyChar) {
+    const keyHint = document.createElement('div');
+    keyHint.className = 'key-hint';
+    keyHint.innerText = keyChar;
+    key.appendChild(keyHint);
+  }
+
+  // イベント
   key.addEventListener('mousedown', () => pressNote(note));
   key.addEventListener('mouseup', () => releaseNote(note));
   key.addEventListener('touchstart', (e) => {
@@ -198,9 +234,13 @@ function releaseNote(note) {
 // ===== 音名と黒鍵判定 =====
 function noteLabel(note) {
   const names = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+  const doremi = ['ド', 'ド#', 'レ', 'レ#', 'ミ', 'ファ', 'ファ#', 'ソ', 'ソ#', 'ラ', 'ラ#', 'シ'];
+
   const name = names[note % 12];
+  const nameJp = doremi[note % 12];
   const octave = Math.floor(note / 12) - 1;
-  return `${name}${octave}`;
+
+  return useDoremi ? `${nameJp}${octave}` : `${name}${octave}`;
 }
 
 function isBlackKey(note) {
@@ -457,42 +497,48 @@ function createMiniKeyboard2Row(noteNumbers) {
   return container;
 }
 
-// キーボード配列（左上が (x=0, y=0)）
-const keyMap = [
-  ['q','w','e','r','t','y','u','i','o','p'],
-  ['a','s','d','f','g','h','j','k','l',';'],
-  ['z','x','c','v','b','n','m',',','.','/']
-];
-
-// スライド位置（初期: 0）
-let keyboardOffsetX = 0;
-let keyboardOffsetY = 1;
-
 const offsetDisplay = document.getElementById('offset-display');
 
 function updateOffsetDisplay() {
   offsetDisplay.textContent = `X: ${keyboardOffsetX}, Y: ${keyboardOffsetY}`;
+  buildKeyboard();
 }
+//操作基準位置移動制限
+const MIN_OFFSET_X = 0;
+const MAX_OFFSET_X = 6;
+const MIN_OFFSET_Y = 0;
+const MAX_OFFSET_Y = 2;
 
 document.getElementById('slide-left').addEventListener('click', () => {
-  keyboardOffsetX = Math.max(keyboardOffsetX - 1, -10);
-  updateOffsetDisplay();
+  if (keyboardOffsetX > MIN_OFFSET_X) {
+    keyboardOffsetX--;
+    updateOffsetDisplay();
+  }
 });
+
 document.getElementById('slide-right').addEventListener('click', () => {
-  keyboardOffsetX = Math.min(keyboardOffsetX + 1, 10);
-  updateOffsetDisplay();
+  if (keyboardOffsetX < MAX_OFFSET_X) {
+    keyboardOffsetX++;
+    updateOffsetDisplay();
+  }
 });
+
 document.getElementById('slide-up').addEventListener('click', () => {
-  keyboardOffsetY = Math.max(keyboardOffsetY - 1, -5);
-  updateOffsetDisplay();
+  if (keyboardOffsetY > MIN_OFFSET_Y) {
+    keyboardOffsetY--;
+    updateOffsetDisplay();
+  }
 });
+
 document.getElementById('slide-down').addEventListener('click', () => {
-  keyboardOffsetY = Math.min(keyboardOffsetY + 1, 5);
-  updateOffsetDisplay();
+  if (keyboardOffsetY < MAX_OFFSET_Y) {
+    keyboardOffsetY++;
+    updateOffsetDisplay();
+  }
 });
 
 document.addEventListener('DOMContentLoaded', () => {
-  setupVexFlow();   // ← ここに移動！
+  setupVexFlow(); 
   buildKeyboard();
   const rangeSlider = document.getElementById('keyboard-range');
   const keySizeSlider = document.getElementById('keySizeSlider');
@@ -559,6 +605,54 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
   });
+  // ==== 🎹 メモ機能 ====
+    const memoButton = document.getElementById('memo-button');
+    const memoModal = document.getElementById('memo-modal');
+    const memoTextarea = document.getElementById('memo-textarea');
+    const memoClose = document.getElementById('memo-close');
+
+    // ローカルストレージから読み込む
+    memoTextarea.value = localStorage.getItem('keyboard-memo') || '';
+
+    // 開く
+    memoButton.addEventListener('click', () => {
+    memoModal.style.display = 'block';
+    });
+
+    // 閉じる
+    memoClose.addEventListener('click', () => {
+    memoModal.style.display = 'none';
+    });
+
+    // 入力時に保存
+    memoTextarea.addEventListener('input', () => {
+    localStorage.setItem('keyboard-memo', memoTextarea.value);
+    });
+
+      const keyHintToggle = document.getElementById('toggle-key-hint');
+
+    //===QWERTYキー表示切り替え機能===
+    // 初期設定：モバイルでは非表示、PCでは表示
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    if (isMobile) {
+      keyHintToggle.checked = false;
+      document.body.classList.add('hide-key-hint');
+    }
+
+    keyHintToggle.addEventListener('change', () => {
+      if (keyHintToggle.checked) {
+        document.body.classList.remove('hide-key-hint');
+      } else {
+        document.body.classList.add('hide-key-hint');
+      }
+    });
+
+    //===ドレミ表示機能===
+    const doremiToggle = document.getElementById('toggle-doremi');
+    doremiToggle.addEventListener('change', () => {
+      useDoremi = doremiToggle.checked;
+      buildKeyboard(); // 表示更新
+    });
 });
 
 

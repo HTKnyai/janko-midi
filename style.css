@@ -4,9 +4,11 @@ header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 1rem;
+  padding: 0 0;
   height: 56px; /* 👈 ヘッダー縦幅を小さめに */
   box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  width: 100vw;
+  position: fixed;
 }
 
 header h1 {
@@ -98,7 +100,8 @@ header h1 {
 
 .key .label {
   pointer-events: none;
-  font-size: inherit; /* ← JSで設定するフォントサイズと一致させるならここを */
+  font-size: inherit;
+  font-family: 'Segoe UI', sans-serif;
 }
 
 .key.black {
@@ -237,7 +240,9 @@ body {
 }
 
 .main-container {
-  padding: 1rem 2rem;
+  padding-top: 56px; /* ← ヘッダー高さと同じ */
+  padding-left: 2rem;
+  padding-right: 2rem;
   max-width: 1200px;
   margin: auto;
 }
@@ -344,4 +349,20 @@ button:hover {
 .version-badge.hidden {
   opacity: 0;
   pointer-events: none;
+}
+
+.key-hint {
+  position: absolute;
+  bottom: 2px;
+  right: 4px;
+  font-size: 0.8em;
+  color: #555;
+  pointer-events: none;
+}
+.key.black .key-hint {
+  color: #ccc;
+}
+
+.hide-key-hint .key-hint {
+  display: none;
 }
