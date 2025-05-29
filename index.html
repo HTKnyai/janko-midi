@@ -23,6 +23,11 @@
       <h2>設定</h2>
 
       <div class="control-block vertical">
+        <label for="keysPerRowSlider">横の鍵盤数: <span id="keysPerRowLabel">12</span></label>
+        <input type="range" id="keysPerRowSlider" min="8" max="22" value="12" />
+      </div>
+
+      <div class="control-block vertical">
         <label for="keyboard-range">音域</label>
         <div class="control-group">
           <button id="range-left" class="icon-button"><i data-feather="chevron-left"></i></button>
@@ -92,6 +97,21 @@
       document.getElementById('close-modal').addEventListener('click', () => {
         modal.classList.add('hidden');
       });
+
+      const memoButton = document.getElementById('memo-button');
+      const memoModal = document.getElementById('memo-modal');
+      const memoClose = document.getElementById('memo-close');
+
+      memoButton.addEventListener('click', () => {
+        const isVisible = memoModal.style.display === 'block';
+        memoModal.style.display = isVisible ? 'none' : 'block';
+        memoButton.classList.toggle('active', !isVisible);
+      });
+
+      memoClose.addEventListener('click', () => {
+        memoModal.style.display = 'none';
+        memoButton.classList.remove('active');
+      });
     });
 
     // モーダルが開いていて、かつクリックが中身以外なら閉じる
@@ -118,20 +138,7 @@
   </script>
 
   <!-- 📝 メモボタン -->
-    <button id="memo-button" style="
-    position: fixed;
-    top: 10%;
-    right: 16px;
-    z-index: 50;
-    padding: 8px 12px;
-    background-color: #444;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    ">
-    Memo
-    </button>
+    <button id="memo-button" class="memo-button">Memo</button>
 
     <!-- 🧾 メモモーダル -->
     <div id="memo-modal" style="
@@ -140,7 +147,7 @@
     top: 35%;
     left: 90%;
     transform: translate(-50%, -50%);
-    z-index: 1000;
+    z-index: 50;
     background: white;
     border: 1px solid #ccc;
     border-radius: 8px;

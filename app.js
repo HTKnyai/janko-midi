@@ -1,6 +1,6 @@
 // ===== ヤンコ鍵盤描画 =====
 const NUM_ROWS = 5;
-const NUM_KEYS_PER_ROW = 12;
+let NUM_KEYS_PER_ROW = 12;
 let KEY_WIDTH = 70;
 let KEY_HEIGHT = 50;
 
@@ -546,6 +546,16 @@ document.addEventListener('DOMContentLoaded', () => {
   // ===== 初期描画 =====
   renderChordChart();
   updateOffsetDisplay();
+
+  // ===== 鍵盤数調整 =====
+  const keysPerRowSlider = document.getElementById('keysPerRowSlider');
+  const keysPerRowLabel = document.getElementById('keysPerRowLabel');
+
+  keysPerRowSlider.addEventListener('input', (e) => {
+    NUM_KEYS_PER_ROW = parseInt(e.target.value);
+    keysPerRowLabel.textContent = NUM_KEYS_PER_ROW;
+    buildKeyboard();
+  });
 
   // ===== スライダー：音域調整 =====
   rangeSlider.addEventListener('input', updateKeyboardFromSlider);

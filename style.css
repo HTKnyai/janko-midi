@@ -9,6 +9,7 @@ header {
   box-shadow: 0 2px 4px rgba(0,0,0,0.2);
   width: 100vw;
   position: fixed;
+  z-index: 100;
 }
 
 header h1 {
@@ -29,6 +30,7 @@ header h1 {
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-right: 2vw;
 }
 
 .settings-icon svg {
@@ -42,11 +44,18 @@ header h1 {
   right: 20px;
   background: #fff;
   border: 1px solid #ccc;
-  padding: 1.2em;
+  padding: 0 1.2em;
   border-radius: 8px;
   width: 320px;
+  max-height: 80vh;         /* 高さを画面の80%に制限 */
+  overflow-y: auto;         /* 内容がはみ出たら縦スクロール */
   box-shadow: 0 4px 10px rgba(0,0,0,0.1);
   z-index: 1000;
+}
+@media (max-height: 500px) {
+  .modal {
+    max-height: 90vh;
+  }
 }
 
 .modal.hidden {
@@ -365,4 +374,25 @@ button:hover {
 
 .hide-key-hint .key-hint {
   display: none;
+}
+
+.memo-button {
+  position: fixed;
+  top: 10%;
+  right: 16px;
+  z-index: 50;
+  padding: 8px 12px;
+  background-color: #444;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.memo-button.active {
+  background-color: #1e88e5;
+  color: white;
+  box-shadow: 0 0 10px rgba(30, 136, 229, 0.6);
+  transform: scale(1.05);
 }
