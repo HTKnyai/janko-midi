@@ -396,3 +396,25 @@ button:hover {
   box-shadow: 0 0 10px rgba(30, 136, 229, 0.6);
   transform: scale(1.05);
 }
+
+#memo-modal {
+  display: none;
+  position: fixed;
+  top: 20%;
+  right: 16px; 
+  z-index: 50;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  width: 180px;
+  max-width: 90vw; /* 画面幅を超えないように */
+  padding: 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+}
+
+@media (max-width: 500px) {
+  #memo-modal {
+    width: 90vw;
+    right: 5vw;
+  }
+}
