@@ -1,6 +1,6 @@
 // ===== ヤンコ鍵盤描画 =====
 const NUM_ROWS = 5;
-const NUM_KEYS_PER_ROW = 16;
+const NUM_KEYS_PER_ROW = 12;
 let KEY_WIDTH = 70;
 let KEY_HEIGHT = 50;
 
@@ -505,7 +505,7 @@ function updateOffsetDisplay() {
 }
 //操作基準位置移動制限
 const MIN_OFFSET_X = 0;
-const MAX_OFFSET_X = 6;
+const MAX_OFFSET_X = 2;
 const MIN_OFFSET_Y = 0;
 const MAX_OFFSET_Y = 2;
 
